@@ -88,6 +88,47 @@
         }
     });
 
+    // Ripple effect
+    function createRipple(e) {
+        const rippleTarget = e.target.closest([
+            '.nav-links a',
+            '.nav-brand',
+            '.find-me-link',
+            '.back-to-top',
+            '.hero-badge',
+            '.nav-toggle',
+            '.project-card',
+            '.learning-card',
+            '.interest-card',
+            '.approach-step',
+            '.hero-stat',
+            '.nav-mobile-menu a' // for mobile menu links
+        ].join(','));
+
+        if (!rippleTarget) return;
+
+        const rect = rippleTarget.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = (e.clientX || e.touches?.[0]?.clientX || rect.left + rect.width / 2) - rect.left;
+        const y = (e.clientY || e.touches?.[0]?.clientY || rect.top + rect.height / 2) - rect.top;
+
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${x - size / 2}px`;
+        ripple.style.top = `${y - size / 2}px`;
+
+        rippleTarget.appendChild(ripple);
+
+        ripple.addEventListener('animationend', () => {
+            ripple.remove();
+        });
+    }
+
+    // Use pointerdown for both mouse and touch
+    document.addEventListener('pointerdown', createRipple, { passive: true });
+
+    // Typewriter effect for hero tagline
     const typedTextElement = document.getElementById('typewriterText');
     if (typedTextElement) {
         const phrases = [
