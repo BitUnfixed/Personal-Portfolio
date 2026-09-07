@@ -218,6 +218,8 @@ p {
     text-decoration: none;
     letter-spacing: -0.01em;
     transition: color var(--transition-fast);
+    position: relative;
+    overflow: hidden;
 }
 .nav-brand:hover {
     color: var(--accent);
@@ -236,6 +238,8 @@ p {
     padding: 8px 14px;
     border-radius: var(--radius-pill);
     transition: color var(--transition-fast), background var(--transition-fast);
+    position: relative;
+    overflow: hidden;
 }
 .nav-links a:hover,
 .nav-links a.active {
@@ -251,6 +255,8 @@ p {
     border-radius: 50%;
     transition: background var(--transition-fast);
     -webkit-tap-highlight-color: transparent;
+    position: relative;
+    overflow: hidden;
 }
 .nav-toggle:hover {
     background: rgba(255, 255, 255, 0.06);
@@ -292,6 +298,8 @@ p {
     padding: 14px 18px;
     border-radius: var(--radius-sm);
     transition: color var(--transition-fast), background var(--transition-fast);
+    position: relative;
+    overflow: hidden;
 }
 .nav-mobile-menu a:hover,
 .nav-mobile-menu a.active {
@@ -319,6 +327,8 @@ p {
     font-weight: 500;
     color: var(--accent);
     margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
 }
 .hero-badge-dot {
     width: 6px;
@@ -407,6 +417,8 @@ p {
 }
 .hero-stat {
     text-align: left;
+    position: relative;
+    overflow: hidden;
 }
 .hero-stat-number {
     font-size: 1.8rem;
@@ -444,6 +456,8 @@ p {
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     transition: transform var(--transition-medium), border-color var(--transition-medium), background var(--transition-medium);
+    position: relative;
+    overflow: hidden;
 }
 .learning-card:hover,
 .interest-card:hover,
@@ -558,6 +572,8 @@ p {
     text-align: center;
     cursor: default;
     transition: background var(--transition-fast), border-color var(--transition-fast);
+    position: relative;
+    overflow: hidden;
 }
 .approach-step:hover {
     background: rgba(255, 255, 255, 0.04);
@@ -612,6 +628,8 @@ p {
     border: 1px solid var(--border);
     text-decoration: none;
     transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+    position: relative;
+    overflow: hidden;
 }
 .find-me-link:hover {
     background: rgba(255, 255, 255, 0.07);
@@ -650,6 +668,8 @@ p {
     transform: translateY(12px);
     transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease;
     -webkit-tap-highlight-color: transparent;
+    position: relative;
+    overflow: hidden;
 }
 .back-to-top.visible {
     opacity: 1;
@@ -679,6 +699,40 @@ p {
     font-size: 0.8rem;
     color: var(--text-tertiary);
     margin: 0;
+}
+
+/* Ripple effect */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(0);
+    animation: ripple 0.6s ease-out;
+    pointer-events: none;
+    z-index: 10;
+}
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Active press effect for tactile feedback */
+.nav-links a:active,
+.nav-brand:active,
+.find-me-link:active,
+.back-to-top:active,
+.hero-badge:active,
+.nav-toggle:active {
+    transform: scale(0.95);
+}
+.project-card:active,
+.learning-card:active,
+.interest-card:active,
+.approach-step:active,
+.hero-stat:active {
+    transform: scale(0.98);
 }
 
 /* Responsive */
@@ -747,7 +801,8 @@ p {
     .hero-line::after,
     .hero-badge-dot,
     .project-badge-dot,
-    .typewriter-cursor {
+    .typewriter-cursor,
+    .ripple {
         animation: none;
     }
     * {
