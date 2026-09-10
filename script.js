@@ -1,176 +1,120 @@
-(function() {
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
+const menuToggle = document.querySelector(".menu-toggle");
+const siteMenu = document.querySelector(".site-menu");
+const progressBar = document.querySelector(".scroll-progress span");
+const typedText = document.querySelector(".typed-text");
+const themeToggle = document.querySelector(".theme-toggle");
 
-    const progressBar = document.getElementById('scrollProgressBar');
-    let ticking = false;
-    function updateProgress() {
-        const scrollTop = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-        progressBar.style.width = progress + '%';
-        ticking = false;
+const savedTheme = window.localStorage.getItem("saranga-theme");
+if (savedTheme === "light") {
+  document.documentElement.dataset.theme = "light";
+}
+
+function updateThemeButton() {
+  const isLight = document.documentElement.dataset.theme === "light";
+  themeToggle.setAttribute("aria-pressed", String(isLight));
+  themeToggle.setAttribute(
+    "aria-label",
+    isLight ? "Switch to dark theme" : "Switch to light theme",
+  );
+}
+
+if (themeToggle) {
+  updateThemeButton();
+  themeToggle.addEventListener("click", () => {
+    const isLight = document.documentElement.dataset.theme === "light";
+    document.documentElement.dataset.theme = isLight ? "dark" : "light";
+    window.localStorage.setItem("saranga-theme", isLight ? "dark" : "light");
+    updateThemeButton();
+    if (menuToggle && siteMenu) {
+      menuToggle.setAttribute("aria-expanded", "false");
+      siteMenu.classList.remove("is-open");
     }
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            ticking = true;
-            window.requestAnimationFrame(updateProgress);
-        }
-    }, { passive: true });
-    window.addEventListener('resize', updateProgress);
-    updateProgress();
+  });
+}
 
-    const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-    revealEls.forEach(el => observer.observe(el));
+if (menuToggle && siteMenu) {
+  menuToggle.addEventListener("click", () => {
+    const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
+    menuToggle.setAttribute("aria-expanded", String(!isOpen));
+    siteMenu.classList.toggle("is-open", !isOpen);
+  });
 
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-links a');
-    const mobileLinks = document.querySelectorAll('.nav-mobile-menu a');
-    function setActiveNav() {
-        let current = '';
-        const scrollPos = window.scrollY + 150;
-        sections.forEach(section => {
-            const top = section.offsetTop;
-            const height = section.offsetHeight;
-            if (scrollPos >= top && scrollPos < top + height) current = section.id;
-        });
-        navLinks.forEach(link => {
-            link.classList.toggle('active', link.getAttribute('href') === '#' + current);
-        });
-        mobileLinks.forEach(link => {
-            link.classList.toggle('active', link.getAttribute('href') === '#' + current);
-        });
+  siteMenu.querySelectorAll("a").forEach((link) =>
+    link.addEventListener("click", () => {
+      menuToggle.setAttribute("aria-expanded", "false");
+      siteMenu.classList.remove("is-open");
+    }),
+  );
+}
+
+function updateScrollProgress() {
+  const scrollableHeight =
+    document.documentElement.scrollHeight - window.innerHeight;
+  progressBar.style.width = `${scrollableHeight > 0 ? (window.scrollY / scrollableHeight) * 100 : 0}%`;
+}
+
+window.addEventListener("scroll", updateScrollProgress, { passive: true });
+updateScrollProgress();
+
+const learningFields = [
+  "Programming",
+  "Artificial Intelligence",
+  "Software Development",
+  "Game Development",
+  "Cybersecurity",
+  "Linux",
+  "Open Source",
+];
+let fieldIndex = 0;
+let characterIndex = learningFields[0].length;
+let deleting = true;
+
+function typeLearningField() {
+  const field = learningFields[fieldIndex];
+  typedText.textContent = deleting
+    ? field.slice(0, characterIndex--)
+    : field.slice(0, characterIndex++);
+  if (characterIndex === 0) {
+    deleting = false;
+    fieldIndex = (fieldIndex + 1) % learningFields.length;
+  }
+  if (characterIndex === field.length + 1) {
+    deleting = true;
+    characterIndex = field.length;
+  }
+  window.setTimeout(typeLearningField, deleting ? 65 : 100);
+}
+
+window.setTimeout(typeLearningField, 1500);
+
+const revealElements = [...document.querySelectorAll(".reveal")];
+
+function revealOnScroll() {
+  revealElements.forEach((element) => {
+    const bounds = element.getBoundingClientRect();
+    if (bounds.top < window.innerHeight * 0.9 && bounds.bottom > 0) {
+      element.classList.add("is-visible");
     }
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            ticking = true;
-            window.requestAnimationFrame(() => { setActiveNav(); ticking = false; });
-        }
-    }, { passive: true });
-    setActiveNav();
+  });
+}
 
-    const backToTop = document.getElementById('backToTop');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 500) backToTop.classList.add('visible');
-        else backToTop.classList.remove('visible');
-    }, { passive: true });
-    backToTop.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+window.addEventListener("scroll", revealOnScroll, { passive: true });
+window.addEventListener("resize", revealOnScroll);
+revealOnScroll();
+
+document
+  .querySelectorAll("a, button, .learning-card, .interests-list article")
+  .forEach((element) => {
+    element.classList.add("ripple-target");
+    element.addEventListener("pointerdown", (event) => {
+      const bounds = element.getBoundingClientRect();
+      const ripple = document.createElement("span");
+      ripple.className = "ripple";
+      ripple.style.left = `${event.clientX - bounds.left}px`;
+      ripple.style.top = `${event.clientY - bounds.top}px`;
+      element.appendChild(ripple);
+      ripple.addEventListener("animationend", () => ripple.remove(), {
+        once: true,
+      });
     });
-
-    const navToggle = document.getElementById('navToggle');
-    const mobileMenu = document.getElementById('mobileMenu');
-    navToggle.addEventListener('click', () => {
-        const open = navToggle.classList.toggle('active');
-        mobileMenu.classList.toggle('open', open);
-        navToggle.setAttribute('aria-expanded', open);
-    });
-    mobileMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            navToggle.classList.remove('active');
-            mobileMenu.classList.remove('open');
-            navToggle.setAttribute('aria-expanded', 'false');
-        });
-    });
-    document.addEventListener('click', (e) => {
-        if (!navToggle.contains(e.target) && !mobileMenu.contains(e.target) && mobileMenu.classList.contains('open')) {
-            navToggle.classList.remove('active');
-            mobileMenu.classList.remove('open');
-            navToggle.setAttribute('aria-expanded', 'false');
-        }
-    });
-
-    // Ripple effect
-    function createRipple(e) {
-        const rippleTarget = e.target.closest([
-            '.nav-links a',
-            '.nav-brand',
-            '.find-me-link',
-            '.back-to-top',
-            '.hero-badge',
-            '.nav-toggle',
-            '.project-card',
-            '.learning-card',
-            '.interest-card',
-            '.approach-step',
-            '.hero-stat',
-            '.nav-mobile-menu a' // for mobile menu links
-        ].join(','));
-
-        if (!rippleTarget) return;
-
-        const rect = rippleTarget.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        const x = (e.clientX || e.touches?.[0]?.clientX || rect.left + rect.width / 2) - rect.left;
-        const y = (e.clientY || e.touches?.[0]?.clientY || rect.top + rect.height / 2) - rect.top;
-
-        const ripple = document.createElement('span');
-        ripple.className = 'ripple';
-        ripple.style.width = ripple.style.height = `${size}px`;
-        ripple.style.left = `${x - size / 2}px`;
-        ripple.style.top = `${y - size / 2}px`;
-
-        rippleTarget.appendChild(ripple);
-
-        ripple.addEventListener('animationend', () => {
-            ripple.remove();
-        });
-    }
-
-    // Use pointerdown for both mouse and touch
-    document.addEventListener('pointerdown', createRipple, { passive: true });
-
-    // Typewriter effect for hero tagline
-    const typedTextElement = document.getElementById('typewriterText');
-    if (typedTextElement) {
-        const phrases = [
-            'Programming',
-            'Artificial Intelligence',
-            'Software Development',
-            'Game Development',
-            'Cybersecurity',
-            'Linux',
-            'Open Source Technologies'
-        ];
-        let phraseIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
-        let typeTimeout;
-
-        function typeWriter() {
-            const currentPhrase = phrases[phraseIndex];
-            if (!isDeleting) {
-                charIndex++;
-                typedTextElement.textContent = currentPhrase.substring(0, charIndex);
-                if (charIndex === currentPhrase.length) {
-                    isDeleting = true;
-                    typeTimeout = setTimeout(typeWriter, 2000);
-                    return;
-                }
-            } else {
-                charIndex--;
-                typedTextElement.textContent = currentPhrase.substring(0, charIndex);
-                if (charIndex === 0) {
-                    isDeleting = false;
-                    phraseIndex = (phraseIndex + 1) % phrases.length;
-                    typeTimeout = setTimeout(typeWriter, 400);
-                    return;
-                }
-            }
-            typeTimeout = setTimeout(typeWriter, isDeleting ? 35 : 60);
-        }
-
-        setTimeout(typeWriter, 500);
-        window.addEventListener('beforeunload', () => {
-            if (typeTimeout) clearTimeout(typeTimeout);
-        });
-    }
-})();
+  });
